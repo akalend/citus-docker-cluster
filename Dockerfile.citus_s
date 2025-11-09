@@ -1,0 +1,16 @@
+FROM postgres AS base
+LABEL MAINTAINER="Alexandre Kalendarev <akalend@mail.ru>"
+ARG MASTERIP
+WORKDIR /home/postgres
+
+RUN sudo apt install -y locate autoconf  
+COPY citus .
+
+RUN sudo chown -R postgres . &&  sh autogen.sh && ./configure --without-zstd && make && sudo make install
+
+WORKDIR /usr/local/pgsql/
+COPY files/* .
+
+
+ENTRYPOINT ["/bin/bash", "/usr/local/pgsql/autoexec_s.sh" ]
+CMD ["bash", "/usr/local/pgsql/autoexec_s.sh" ]
